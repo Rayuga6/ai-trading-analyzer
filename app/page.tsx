@@ -12,6 +12,7 @@ type Analysis = {
   tp3: string;
   confidence: number;
   riskReward: string;
+  reason: string;
 };
 
 export default function Home() {
@@ -49,30 +50,57 @@ export default function Home() {
     setAnalysis(null);
   }
 
-  function analyzeChart() {
-    if (!file) return;
-
-    setAnalyzing(true);
-    setAnalysis(null);
-
-    // Demo result.
-    // Real AI analysis will be connected in the next step.
-    setTimeout(() => {
-      setAnalysis({
-        signal: "WAIT",
-        trend: "Neutral / Sideways",
-        entry: "Waiting for confirmation",
-        stopLoss: "Structure dependent",
-        tp1: "—",
-        tp2: "—",
-        tp3: "—",
-        confidence: 68,
-        riskReward: "Not confirmed",
-      });
-
-      setAnalyzing(false);
-    }, 1800);
+ async function analyzeChart() {
+  if (!file) {
+    alert("Please select a chart image first.");
+    return;
   }
+
+  setAnalyzing(true);
+  setAnalysis(null);
+
+  try {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    const response = await fetch("/api/analyze", {
+      method: "POST",
+      body: formData,
+    });
+
+    const contentType = response.headers.get("content-type") || "";
+
+    if (!contentType.includes("application/json")) {
+      throw new Error(
+        "Server returned an unexpected response. Please try again."
+      );
+    }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data?.error || "AI analysis failed. Please try again."
+      );
+    }
+
+    if (!data || typeof data !== "object") {
+      throw new Error("AI returned an invalid analysis.");
+    }
+
+    setAnalysis(data);
+  } catch (error) {
+    console.error("Analysis error:", error);
+
+    alert(
+      error instanceof Error
+        ? error.message
+        : "Unable to analyze the chart. Please try again."
+    );
+  } finally {
+    setAnalyzing(false);
+  }
+}
 
   return (
     <main className="min-h-screen bg-[#070b14] text-white">
@@ -240,9 +268,21 @@ export default function Home() {
               </p>
 
               <p className="mt-2 text-sm leading-6 text-slate-400">
-                This is currently a demo analysis interface. Real chart
-                vision, technical indicators and market-data analysis will be
-                connected to the AI backend next.
+               {analysis ? (
+  <>
+    <span className="font-semibold">
+      AI analysis completed.
+    </span>{" "}
+    The chart has been analyzed using the AI vision model. Signal:
+    <span className="font-semibold"> {analysis.signal}</span>.
+    <span className="mt-3">
+  <span className="font-semibold">Reason: </span>
+  {analysis.reason}
+</span>
+  </>
+) : (
+  "Upload a chart and click Analyze Chart to start AI analysis."
+)}
               </p>
             </div>
           </div>
