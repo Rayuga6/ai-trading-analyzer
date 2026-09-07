@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     const base64 = Buffer.from(bytes).toString("base64");
     const mimeType = image.type || "image/jpeg";
       const marketResponse = await fetch(
-    "http://localhost:3000/api/market",
+    `${new URL("/api/market", request.url).toString()}`,
     { cache: "no-store" }
   );
 
