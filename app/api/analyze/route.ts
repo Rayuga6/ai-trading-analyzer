@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
+import { getMarketData } from "@/lib/market-data";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -36,20 +37,7 @@ export async function POST(request: Request) {
     const bytes = await image.arrayBuffer();
     const base64 = Buffer.from(bytes).toString("base64");
     const mimeType = image.type || "image/jpeg";
-      const marketResponse = await fetch(
-    `${new URL("/api/market", request.url).toString()}`,
-    { cache: "no-store" }
-  );
-  if (!marketResponse.ok) {
-  throw new Error(`Market API failed with status ${marketResponse.status}`);
-}
-
-const contentType = marketResponse.headers.get("content-type") || "";
-
-if (!contentType.includes("application/json")) {
-  throw new Error("Market API returned a non-JSON response");
-}
-  const marketData = await marketResponse.json();
+   const marketData = await getMarketData();
 
 const currentPrice = marketData.price;
 const adx = marketData.adx;
