@@ -10,12 +10,12 @@ type Candle = [
 
 export async function getMarketData() {
   const tickerResponse = await fetch(
-    "https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT",
+    "https://data-api.binance.vision/api/v3/ticker/price?symbol=BTCUSDT",
     { cache: "no-store" }
   );
 
   const candleResponse = await fetch(
-    "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=15m&limit=100",
+    "https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=15m&limit=100",
     { cache: "no-store" }
   );
 
