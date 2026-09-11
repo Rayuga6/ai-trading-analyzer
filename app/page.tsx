@@ -13,6 +13,12 @@ type Analysis = {
   confidence: number;
   riskReward: string;
   reason: string;
+  bullishProbability: number;
+  bullishTrigger: string;
+  bullishTarget: string;
+  bearishProbability: number;
+bearishTrigger: string;
+bearishTarget: string;
 };
 
 export default function Home() {
@@ -260,6 +266,50 @@ export default function Home() {
               <ResultBox title="TP1" value={analysis.tp1} />
               <ResultBox title="TP2" value={analysis.tp2} />
               <ResultBox title="TP3" value={analysis.tp3} />
+              <div className="mt-6 w-full md:col-span-4 rounded-2xl border border-green-400/20 bg-green-400/5 p-5">
+                 <p className="text-sm font-semibold text-green-300">
+                  Bullish Scenario
+                      </p>
+
+                     <div className="mt-4 grid gap-4 md:grid-cols-3">
+                       <ResultBox
+                      title="Probability"
+                          value={`${analysis.bullishProbability}%`}
+                      />
+
+                             <ResultBox
+                            title="Trigger"
+      value={analysis.bullishTrigger}
+    />
+
+    <ResultBox
+      title="Target"
+      value={analysis.bullishTarget}
+    />
+  </div>
+</div>
+<div className="mt-6 w-full md:col-span-4 rounded-2xl border border-red-400/20 bg-red-400/5 p-5">
+  <p className="text-sm font-semibold text-red-300">
+    Bearish Scenario
+  </p>
+
+  <div className="mt-4 grid gap-4 md:grid-cols-3">
+    <ResultBox
+      title="Probability"
+      value={`${analysis.bearishProbability}%`}
+    />
+
+    <ResultBox
+      title="Trigger"
+      value={analysis.bearishTrigger}
+    />
+
+    <ResultBox
+      title="Target"
+      value={analysis.bearishTarget}
+    />
+  </div>
+</div>
             </div>
 
             <div className="mt-7 rounded-2xl border border-yellow-400/20 bg-yellow-400/5 p-5">
