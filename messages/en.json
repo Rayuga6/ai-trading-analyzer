@@ -1,0 +1,133 @@
+{
+  "appName": "AITrade Analyzer",
+  "common": {
+    "loading": "Loading...",
+    "refresh": "Refresh",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "error": "Something went wrong.",
+    "retry": "Retry",
+    "back": "Back",
+    "next": "Next",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "pricing": "Pricing",
+    "alerts": "Alerts",
+    "performance": "Performance",
+    "backtest": "Backtesting",
+    "paperTrading": "Paper Trading",
+    "referral": "Referral",
+    "coupons": "Coupons",
+    "admin": "Admin",
+    "contact": "Contact",
+    "faq": "FAQ"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign up",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?"
+  },
+  "trading": {
+    "buy": "BUY",
+    "sell": "SELL",
+    "hold": "HOLD",
+    "long": "LONG",
+    "short": "SHORT",
+    "confidence": "Confidence",
+    "entryPrice": "Entry price",
+    "currentPrice": "Current price",
+    "stopLoss": "Stop loss",
+    "takeProfit": "Take profit",
+    "risk": "Risk",
+    "signal": "Signal",
+    "analysis": "Analysis"
+  },
+  "subscription": {
+    "free": "Free",
+    "basic": "Basic",
+    "starter": "Starter",
+    "pro": "Pro",
+    "elite": "Elite",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "analyses": "Analyses",
+    "remaining": "Remaining",
+    "used": "Used",
+    "unlimited": "Unlimited",
+    "subscribe": "Subscribe",
+    "cancelSubscription": "Cancel subscription",
+    "renewal": "Renewal",
+    "expired": "Expired"
+  },
+  "pricing": {
+    "title": "Choose your plan",
+    "subtitle": "Select a plan that fits your analysis needs.",
+    "launchOffer": "Launch offer",
+    "discount": "25% off",
+    "mostPopular": "Most Popular",
+    "perMonth": "per month",
+    "perYear": "per year",
+    "lifetimeFree": "1 lifetime analysis"
+  },
+  "alerts": {
+    "title": "Alerts",
+    "price": "Price",
+    "aiAnalysis": "AI Analysis",
+    "risk": "Risk",
+    "system": "System",
+    "read": "Read",
+    "unread": "Unread",
+    "markAllRead": "Mark all as read",
+    "noAlerts": "No alerts found."
+  },
+  "performance": {
+    "title": "Performance",
+    "accuracy": "Accuracy",
+    "evaluated": "Evaluated",
+    "correct": "Correct",
+    "incorrect": "Incorrect",
+    "pending": "Pending",
+    "winRate": "Win rate",
+    "totalPnl": "Total P&L"
+  },
+  "backtest": {
+    "title": "Backtesting",
+    "run": "Run backtest",
+    "capital": "Capital",
+    "positionSize": "Position size",
+    "fee": "Fee",
+    "netProfit": "Net profit",
+    "return": "Return",
+    "maxDrawdown": "Max drawdown",
+    "trades": "Trades"
+  },
+  "paperTrading": {
+    "title": "Paper Trading",
+    "virtualMoney": "Virtual money",
+    "open": "Open",
+    "closed": "Closed",
+    "cancelled": "Cancelled",
+    "createTrade": "Create trade",
+    "closeTrade": "Close trade"
+  },
+  "legal": {
+    "disclaimer": "Risk Disclaimer",
+    "terms": "Terms & Conditions",
+    "privacy": "Privacy Policy",
+    "refund": "Refund & Subscription Policy",
+    "responsibleTrading": "Responsible Trading"
+  },
+  "support": {
+    "contact": "Contact Support",
+    "faq": "Frequently Asked Questions",
+    "help": "Help"
+  }
+}

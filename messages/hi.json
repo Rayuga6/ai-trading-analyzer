@@ -1,0 +1,133 @@
+{
+  "appName": "AITrade Analyzer",
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "refresh": "रिफ्रेश",
+    "save": "सेव करें",
+    "cancel": "रद्द करें",
+    "close": "बंद करें",
+    "error": "कुछ गलत हो गया।",
+    "retry": "फिर से कोशिश करें",
+    "back": "वापस",
+    "next": "आगे",
+    "confirm": "पुष्टि करें",
+    "yes": "हाँ",
+    "no": "नहीं"
+  },
+  "navigation": {
+    "dashboard": "डैशबोर्ड",
+    "pricing": "प्राइसिंग",
+    "alerts": "अलर्ट",
+    "performance": "परफॉर्मेंस",
+    "backtest": "बैकटेस्टिंग",
+    "paperTrading": "पेपर ट्रेडिंग",
+    "referral": "रेफरल",
+    "coupons": "कूपन",
+    "admin": "एडमिन",
+    "contact": "संपर्क",
+    "faq": "FAQ"
+  },
+  "auth": {
+    "login": "लॉगिन",
+    "signup": "साइन अप",
+    "logout": "लॉगआउट",
+    "email": "ईमेल",
+    "password": "पासवर्ड",
+    "forgotPassword": "पासवर्ड भूल गए?"
+  },
+  "trading": {
+    "buy": "BUY",
+    "sell": "SELL",
+    "hold": "HOLD",
+    "long": "LONG",
+    "short": "SHORT",
+    "confidence": "कॉन्फिडेंस",
+    "entryPrice": "एंट्री प्राइस",
+    "currentPrice": "करंट प्राइस",
+    "stopLoss": "स्टॉप लॉस",
+    "takeProfit": "टेक प्रॉफिट",
+    "risk": "रिस्क",
+    "signal": "सिग्नल",
+    "analysis": "एनालिसिस"
+  },
+  "subscription": {
+    "free": "फ्री",
+    "basic": "बेसिक",
+    "starter": "स्टार्टर",
+    "pro": "प्रो",
+    "elite": "एलीट",
+    "monthly": "मासिक",
+    "yearly": "वार्षिक",
+    "analyses": "एनालिसिस",
+    "remaining": "बाकी",
+    "used": "उपयोग किए गए",
+    "unlimited": "अनलिमिटेड",
+    "subscribe": "सब्सक्राइब करें",
+    "cancelSubscription": "सब्सक्रिप्शन रद्द करें",
+    "renewal": "रिन्यूअल",
+    "expired": "समाप्त"
+  },
+  "pricing": {
+    "title": "अपना प्लान चुनें",
+    "subtitle": "अपनी एनालिसिस जरूरत के अनुसार प्लान चुनें।",
+    "launchOffer": "लॉन्च ऑफर",
+    "discount": "25% छूट",
+    "mostPopular": "सबसे लोकप्रिय",
+    "perMonth": "प्रति माह",
+    "perYear": "प्रति वर्ष",
+    "lifetimeFree": "1 लाइफटाइम एनालिसिस"
+  },
+  "alerts": {
+    "title": "अलर्ट",
+    "price": "प्राइस",
+    "aiAnalysis": "AI एनालिसिस",
+    "risk": "रिस्क",
+    "system": "सिस्टम",
+    "read": "पढ़ा गया",
+    "unread": "नहीं पढ़ा गया",
+    "markAllRead": "सभी को पढ़ा हुआ करें",
+    "noAlerts": "कोई अलर्ट नहीं मिला।"
+  },
+  "performance": {
+    "title": "परफॉर्मेंस",
+    "accuracy": "एक्यूरेसी",
+    "evaluated": "मूल्यांकन किए गए",
+    "correct": "सही",
+    "incorrect": "गलत",
+    "pending": "पेंडिंग",
+    "winRate": "विन रेट",
+    "totalPnl": "कुल P&L"
+  },
+  "backtest": {
+    "title": "बैकटेस्टिंग",
+    "run": "बैकटेस्ट चलाएँ",
+    "capital": "कैपिटल",
+    "positionSize": "पोजीशन साइज",
+    "fee": "फीस",
+    "netProfit": "नेट प्रॉफिट",
+    "return": "रिटर्न",
+    "maxDrawdown": "मैक्स ड्रॉडाउन",
+    "trades": "ट्रेड्स"
+  },
+  "paperTrading": {
+    "title": "पेपर ट्रेडिंग",
+    "virtualMoney": "वर्चुअल मनी",
+    "open": "ओपन",
+    "closed": "बंद",
+    "cancelled": "रद्द",
+    "createTrade": "ट्रेड बनाएँ",
+    "closeTrade": "ट्रेड बंद करें"
+  },
+  "legal": {
+    "disclaimer": "रिस्क डिस्क्लेमर",
+    "terms": "नियम और शर्तें",
+    "privacy": "प्राइवेसी पॉलिसी",
+    "refund": "रिफंड और सब्सक्रिप्शन पॉलिसी",
+    "responsibleTrading": "जिम्मेदार ट्रेडिंग"
+  },
+  "support": {
+    "contact": "सपोर्ट से संपर्क करें",
+    "faq": "अक्सर पूछे जाने वाले सवाल",
+    "help": "मदद"
+  }
+}

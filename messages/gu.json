@@ -1,0 +1,133 @@
+{
+  "appName": "AITrade Analyzer",
+  "common": {
+    "loading": "લોડ થઈ રહ્યું છે...",
+    "refresh": "રિફ્રેશ",
+    "save": "સાચવો",
+    "cancel": "રદ કરો",
+    "close": "બંધ કરો",
+    "error": "કંઈક ખોટું થયું.",
+    "retry": "ફરી પ્રયાસ કરો",
+    "back": "પાછળ",
+    "next": "આગળ",
+    "confirm": "પુષ્ટિ કરો",
+    "yes": "હા",
+    "no": "ના"
+  },
+  "navigation": {
+    "dashboard": "ડેશબોર્ડ",
+    "pricing": "પ્રાઇસિંગ",
+    "alerts": "અલર્ટ્સ",
+    "performance": "પરફોર્મન્સ",
+    "backtest": "બેકટેસ્ટિંગ",
+    "paperTrading": "પેપર ટ્રેડિંગ",
+    "referral": "રેફરલ",
+    "coupons": "કૂપન્સ",
+    "admin": "એડમિન",
+    "contact": "સંપર્ક",
+    "faq": "FAQ"
+  },
+  "auth": {
+    "login": "લોગિન",
+    "signup": "સાઇન અપ",
+    "logout": "લોગઆઉટ",
+    "email": "ઈમેલ",
+    "password": "પાસવર્ડ",
+    "forgotPassword": "પાસવર્ડ ભૂલી ગયા?"
+  },
+  "trading": {
+    "buy": "BUY",
+    "sell": "SELL",
+    "hold": "HOLD",
+    "long": "LONG",
+    "short": "SHORT",
+    "confidence": "કોન્ફિડન્સ",
+    "entryPrice": "એન્ટ્રી પ્રાઇસ",
+    "currentPrice": "વર્તમાન પ્રાઇસ",
+    "stopLoss": "સ્ટોપ લોસ",
+    "takeProfit": "ટેક પ્રોફિટ",
+    "risk": "રિસ્ક",
+    "signal": "સિગ્નલ",
+    "analysis": "એનાલિસિસ"
+  },
+  "subscription": {
+    "free": "ફ્રી",
+    "basic": "બેસિક",
+    "starter": "સ્ટાર્ટર",
+    "pro": "પ્રો",
+    "elite": "એલાઇટ",
+    "monthly": "માસિક",
+    "yearly": "વાર્ષિક",
+    "analyses": "એનાલિસિસ",
+    "remaining": "બાકી",
+    "used": "ઉપયોગ થયેલ",
+    "unlimited": "અનલિમિટેડ",
+    "subscribe": "સબ્સ્ક્રાઇબ કરો",
+    "cancelSubscription": "સબ્સ્ક્રિપ્શન રદ કરો",
+    "renewal": "રિન્યુઅલ",
+    "expired": "સમાપ્ત"
+  },
+  "pricing": {
+    "title": "તમારો પ્લાન પસંદ કરો",
+    "subtitle": "તમારી એનાલિસિસ જરૂરિયાત પ્રમાણે પ્લાન પસંદ કરો.",
+    "launchOffer": "લૉન્ચ ઓફર",
+    "discount": "25% છૂટ",
+    "mostPopular": "સૌથી લોકપ્રિય",
+    "perMonth": "દર મહિને",
+    "perYear": "દર વર્ષે",
+    "lifetimeFree": "1 લાઇફટાઇમ એનાલિસિસ"
+  },
+  "alerts": {
+    "title": "અલર્ટ્સ",
+    "price": "પ્રાઇસ",
+    "aiAnalysis": "AI એનાલિસિસ",
+    "risk": "રિસ્ક",
+    "system": "સિસ્ટમ",
+    "read": "વાંચેલું",
+    "unread": "ન વાંચેલું",
+    "markAllRead": "બધાને વાંચેલું કરો",
+    "noAlerts": "કોઈ અલર્ટ મળ્યું નથી."
+  },
+  "performance": {
+    "title": "પરફોર્મન્સ",
+    "accuracy": "એક્યુરેસી",
+    "evaluated": "મૂલ્યાંકન થયેલ",
+    "correct": "સાચું",
+    "incorrect": "ખોટું",
+    "pending": "પેન્ડિંગ",
+    "winRate": "વિન રેટ",
+    "totalPnl": "કુલ P&L"
+  },
+  "backtest": {
+    "title": "બેકટેસ્ટિંગ",
+    "run": "બેકટેસ્ટ ચલાવો",
+    "capital": "કેપિટલ",
+    "positionSize": "પોઝિશન સાઇઝ",
+    "fee": "ફી",
+    "netProfit": "નેટ પ્રોફિટ",
+    "return": "રિટર્ન",
+    "maxDrawdown": "મહત્તમ ડ્રોડાઉન",
+    "trades": "ટ્રેડ્સ"
+  },
+  "paperTrading": {
+    "title": "પેપર ટ્રેડિંગ",
+    "virtualMoney": "વર્ચ્યુઅલ મની",
+    "open": "ઓપન",
+    "closed": "બંધ",
+    "cancelled": "રદ કરેલ",
+    "createTrade": "ટ્રેડ બનાવો",
+    "closeTrade": "ટ્રેડ બંધ કરો"
+  },
+  "legal": {
+    "disclaimer": "રિસ્ક ડિસ્ક્લેમર",
+    "terms": "નિયમો અને શરતો",
+    "privacy": "પ્રાઇવસી પોલિસી",
+    "refund": "રિફંડ અને સબ્સ્ક્રિપ્શન પોલિસી",
+    "responsibleTrading": "જવાબદાર ટ્રેડિંગ"
+  },
+  "support": {
+    "contact": "સપોર્ટનો સંપર્ક કરો",
+    "faq": "વારંવાર પૂછાતા પ્રશ્નો",
+    "help": "મદદ"
+  }
+}
