@@ -107,7 +107,8 @@ import {
   getAnalystTargets,
 } from "@/lib/market-data";
 import { getMarketNews } from "@/lib/news-data";
-import { getCurrentUser, saveAnalysis } from "@/lib/database";
+import { getCurrentUser } from "@/lib/auth";
+import { saveAnalysis } from "@/lib/database";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -876,3 +877,4 @@ export async function POST(request: Request) {
     return errorResponse(500);
   }
 }
+ 

@@ -1,56 +1,41 @@
 "use client";
 
-import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent, Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
-
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/dashboard";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  async function handleLogin(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setError("");
     setMessage("");
-
     if (!email.trim() || !password) {
       setError("Email and password are required.");
       return;
     }
-
     setLoading(true);
-
     try {
       const response = await fetch("/api/auth", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action: "login",
-          email,
-          password,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "login", email, password }),
       });
-
       const result = await response.json();
-
       if (!response.ok || !result.success) {
         setError(result.message || "Login failed.");
         return;
       }
-
       setMessage("Login successful. Redirecting...");
-
-      setTimeout(() => {
-        router.push("/dashboard");
-        router.refresh();
-      }, 500);
+      router.replace(redirectTo.startsWith("/") ? redirectTo : "/dashboard");
+      router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -59,178 +44,28 @@ export default function LoginPage() {
   }
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "24px",
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "420px",
-          padding: "32px",
-          borderRadius: "20px",
-          border: "1px solid rgba(128,128,128,0.25)",
-          background: "var(--background)",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
-        }}
-      >
-        <div style={{ textAlign: "center", marginBottom: "28px" }}>
-          <h1
-            style={{
-              fontSize: "32px",
-              fontWeight: 800,
-              marginBottom: "8px",
-            }}
-          >
-            Welcome Back
-          </h1>
-
-          <p style={{ opacity: 0.7 }}>
-            Login to your AI Trading Analyzer account
-          </p>
-        </div>
-
-        <form onSubmit={handleLogin}>
-          <label
-            style={{
-              display: "block",
-              fontWeight: 600,
-              marginBottom: "8px",
-            }}
-          >
-            Email
-          </label>
-
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            autoComplete="email"
-            disabled={loading}
-            style={{
-              width: "100%",
-              padding: "14px",
-              marginBottom: "18px",
-              borderRadius: "10px",
-              border: "1px solid rgba(128,128,128,0.4)",
-              background: "transparent",
-              color: "inherit",
-              outline: "none",
-            }}
-          />
-
-          <label
-            style={{
-              display: "block",
-              fontWeight: 600,
-              marginBottom: "8px",
-            }}
-          >
-            Password
-          </label>
-
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
-            autoComplete="current-password"
-            disabled={loading}
-            style={{
-              width: "100%",
-              padding: "14px",
-              marginBottom: "12px",
-              borderRadius: "10px",
-              border: "1px solid rgba(128,128,128,0.4)",
-              background: "transparent",
-              color: "inherit",
-              outline: "none",
-            }}
-          />
-
-          {error && (
-            <div
-              style={{
-                padding: "12px",
-                margin: "12px 0",
-                borderRadius: "10px",
-                background: "rgba(255,0,0,0.1)",
-                color: "#ff4d4d",
-                fontSize: "14px",
-              }}
-            >
-              {error}
-            </div>
-          )}
-
-          {message && (
-            <div
-              style={{
-                padding: "12px",
-                margin: "12px 0",
-                borderRadius: "10px",
-                background: "rgba(0,180,100,0.1)",
-                color: "#00b86b",
-                fontSize: "14px",
-              }}
-            >
-              {message}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: "100%",
-              padding: "14px",
-              marginTop: "10px",
-              border: "none",
-              borderRadius: "10px",
-              cursor: loading ? "not-allowed" : "pointer",
-              fontSize: "16px",
-              fontWeight: 700,
-              background: loading ? "#777" : "#2563eb",
-              color: "white",
-            }}
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
+    <main className="flex min-h-screen items-center justify-center px-6 py-10">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.03] p-8 shadow-2xl">
+        <h1 className="text-center text-3xl font-bold">Welcome Back</h1>
+        <p className="mt-2 text-center text-sm text-slate-400">Login to AITrade Analyzer</p>
+        <form onSubmit={handleLogin} className="mt-8 space-y-4">
+          <input className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} autoComplete="email" />
+          <input className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} autoComplete="current-password" />
+          {error && <p className="rounded-lg bg-red-400/10 p-3 text-sm text-red-300">{error}</p>}
+          {message && <p className="rounded-lg bg-green-400/10 p-3 text-sm text-green-300">{message}</p>}
+          <button className="w-full rounded-xl bg-cyan-400 px-4 py-3 font-bold text-slate-950 disabled:opacity-50" type="submit" disabled={loading}>{loading ? "Logging in..." : "Login"}</button>
         </form>
-
-        <div
-          style={{
-            textAlign: "center",
-            marginTop: "22px",
-            fontSize: "14px",
-          }}
-        >
-          <span style={{ opacity: 0.7 }}>
-            Don't have an account?{" "}
-          </span>
-
-          <button
-            type="button"
-            onClick={() => router.push("/signup")}
-            style={{
-              border: "none",
-              background: "transparent",
-              color: "#2563eb",
-              fontWeight: 700,
-              cursor: "pointer",
-              padding: 0,
-            }}
-          >
-            Sign up
-          </button>
-        </div>
+        <p className="mt-6 text-center text-sm text-slate-400">Don’t have an account? <button type="button" className="font-semibold text-cyan-300" onClick={() => router.push("/signup")}>Sign up</button></p>
       </div>
     </main>
+  );
+}
+
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<main className="flex min-h-screen items-center justify-center px-6 py-10">Loading...</main>}>
+      <LoginForm />
+    </Suspense>
   );
 }

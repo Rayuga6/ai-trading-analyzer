@@ -215,6 +215,17 @@ export default function DashboardPage() {
     }));
   }, [history]);
 
+  async function handleLogout() {
+    try {
+      const response = await fetch("/api/auth/logout", { method: "POST" });
+      if (!response.ok) throw new Error("Logout failed");
+      window.location.assign("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      setError("Unable to log out. Please try again.");
+    }
+  }
+
   async function refresh() {
     setRefreshing(true);
     await loadDashboard();
@@ -282,6 +293,13 @@ export default function DashboardPage() {
             >
               New Analysis
             </Link>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="rounded-lg border border-red-400/20 bg-red-400/10 px-4 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-400/20"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </header>

@@ -1,11 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import type { AuthChangeEvent, Session } from "@supabase/supabase-js";
-
-const supabase = createClient();
 
 type Analysis = {
   signal: "BUY" | "SELL" | "WAIT";
@@ -585,10 +581,6 @@ const GLOBAL_STOCKS = [
 ];
 
 export default function Home() {
-  const router = useRouter();
-  const [authChecked, setAuthChecked] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
@@ -609,42 +601,8 @@ export default function Home() {
   const [stockSearch, setStockSearch] = useState("");
   const [forexSearch, setForexSearch] = useState("");
   const [timeframe, setTimeframe] = useState("15m");
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [favoriteId, setFavoriteId] = useState<string | null>(null);
-  const [favoriteSaving, setFavoriteSaving] = useState(false);
   const marketSectionRef = useRef<HTMLDivElement | null>(null);
   const uploadSectionRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    let active = true;
-
-    async function checkAuth() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!active) return;
-
-      setIsLoggedIn(Boolean(user));
-      setAuthChecked(true);
-    }
-
-    checkAuth();
-
-    const {
-      data: { subscription },
-  } = supabase.auth.onAuthStateChange(
-  (event: AuthChangeEvent, session: Session | null) => {
-    setIsLoggedIn(Boolean(session?.user));
-    setAuthChecked(true);
-  }
-);
-
-    return () => {
-      active = false;
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
 
   useEffect(() => {
     if (!file) {
@@ -658,138 +616,15 @@ export default function Home() {
     return () => URL.revokeObjectURL(url);
   }, [file]);
 
-  function getFavoriteTarget() {
-    const symbol =
-      cryptoSymbol || indianSymbol || forexSymbol || stockSymbol ||
-      analysis?.selectedSymbol || analysis?.selectedMarket || "";
-
-    if (!symbol) return null;
-
-    const upperSymbol = symbol.toUpperCase();
-    let market = "Global Stocks";
-
-    if (cryptoSymbol || upperSymbol.endsWith("USDT")) {
-      market = "Crypto";
-    } else if (
-      indianSymbol ||
-      ["NIFTY", "BANKNIFTY", "SENSEX"].includes(upperSymbol)
-    ) {
-      market = "Indian Market";
-    } else if (forexSymbol || /^[A-Z]{6}$/.test(upperSymbol)) {
-      market = "Forex";
-    }
-
-    return { market, symbol: upperSymbol };
-  }
-
-  async function refreshFavoriteStatus() {
-    const target = getFavoriteTarget();
-
-    if (!target) {
-      setIsFavorite(false);
-      setFavoriteId(null);
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/favorites", {
-        method: "GET",
-        cache: "no-store",
-      });
-      if (!response.ok) return;
-
-      const result = await response.json();
-      if (!result?.success) return;
-
-      const found = (result.favorites || []).find(
-        (item: { id: string; market: string; symbol: string }) =>
-          item.market === target.market &&
-          item.symbol.toUpperCase() === target.symbol
-      );
-
-      setIsFavorite(Boolean(found));
-      setFavoriteId(found?.id || null);
-    } catch {
-      // Favorite status should never block chart analysis.
-    }
-  }
-
-  async function toggleFavorite() {
-    const target = getFavoriteTarget();
-
-    if (!target) {
-      alert("Please select a market and symbol first.");
-      return;
-    }
-
-    setFavoriteSaving(true);
-
-    try {
-      const response = isFavorite
-        ? await fetch(
-            `/api/favorites?market=${encodeURIComponent(target.market)}&symbol=${encodeURIComponent(target.symbol)}`,
-            { method: "DELETE" }
-          )
-        : await fetch("/api/favorites", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(target),
-          });
-
-      const result = await response.json();
-
-      if (response.status === 401) {
-        window.location.href = "/login";
-        return;
-      }
-
-      if (!response.ok || !result?.success) {
-        throw new Error(
-          result?.message ||
-            (isFavorite ? "Unable to remove favorite." : "Unable to add favorite.")
-        );
-      }
-
-      if (isFavorite) {
-        setIsFavorite(false);
-        setFavoriteId(null);
-      } else {
-        setIsFavorite(true);
-        setFavoriteId(result.favorite?.id || null);
-      }
-    } catch (error) {
-      console.error("Favorite toggle error:", error);
-      alert(error instanceof Error ? error.message : "Unable to update favorite.");
-    } finally {
-      setFavoriteSaving(false);
-    }
-  }
-
-  async function handleLogout() {
-    const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      console.error("Logout error:", error);
-      return;
-    }
-
-    setIsLoggedIn(false);
-    router.push("/");
-  }
-
-  function requireLogin() {
-    if (!isLoggedIn) {
-      window.location.assign("/login");
-      return false;
-    }
-
-    return true;
-  }
-
-  function handleFile(selectedFile?: File) {
+  async function handleFile(selectedFile?: File) {
     if (!selectedFile) return;
 
-    if (!requireLogin()) return;
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      window.location.assign("/login?redirect=/");
+      return;
+    }
 
     if (analysisMode === "live" && !selectedMarket) {
       alert("Please select a market first for Live Data Analysis.");
@@ -924,8 +759,6 @@ export default function Home() {
   }
 
   async function analyzeChart() {
-    if (!requireLogin()) return;
-
     if (analysisMode === "live" && !selectedMarket) {
       alert("Please select a market first for Live Data Analysis.");
       chooseLiveAnalysis();
@@ -977,9 +810,6 @@ export default function Home() {
     }
 
     setAnalysis(data);
-    setTimeout(() => {
-      refreshFavoriteStatus();
-    }, 0);
   } catch (error) {
     console.error("Analysis error:", error);
 
@@ -1009,37 +839,21 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button className="hidden rounded-lg px-4 py-2 text-sm text-slate-300 hover:bg-white/5 md:block">
+            <button
+              type="button"
+              onClick={() => window.location.assign("/pricing")}
+              className="hidden rounded-lg px-4 py-2 text-sm text-slate-300 hover:bg-white/5 md:block"
+            >
               Pricing
             </button>
 
-            {!isLoggedIn ? (
-              <button
-                type="button"
-                onClick={() => window.location.assign("/login")}
-                className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium hover:bg-white/10"
-              >
-                Sign In
-              </button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => router.push("/dashboard")}
-                  className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium hover:bg-white/10"
-                >
-                  Dashboard
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-300 hover:bg-red-500/20"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
+            <button
+              type="button"
+              onClick={() => window.location.assign("/login?redirect=/")}
+              className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium hover:bg-white/10"
+            >
+              Sign In
+            </button>
           </div>
         </div>
       </header>
@@ -1121,18 +935,6 @@ export default function Home() {
 
           <label
             htmlFor="chart-upload"
-            onClick={(event) => {
-              if (!authChecked || !isLoggedIn) {
-                event.preventDefault();
-                window.location.assign("/login");
-                return;
-              }
-
-              if (analysisMode === "live" && !selectedMarket) {
-                event.preventDefault();
-                alert("Please select a market first for Live Data Analysis.");
-              }
-            }}
             className={`mt-5 block rounded-3xl border border-dashed p-5 md:p-8 ${
               analysisMode === "live" && !selectedMarket
                 ? "cursor-not-allowed border-white/10 bg-[#0d1422]/60 opacity-60"
@@ -1297,25 +1099,6 @@ export default function Home() {
               {analysis.confidence}%
             </p>
           </div>
-
-          {getFavoriteTarget() && (
-            <button
-              type="button"
-              onClick={toggleFavorite}
-              disabled={favoriteSaving}
-              className={`rounded-2xl border px-5 py-4 text-sm font-semibold transition ${
-                isFavorite
-                  ? "border-yellow-400/30 bg-yellow-400/10 text-yellow-300"
-                  : "border-white/10 bg-white/[0.03] text-slate-300 hover:bg-white/[0.08]"
-              }`}
-            >
-              {favoriteSaving
-                ? "Saving..."
-                : isFavorite
-                  ? "★ Favorited"
-                  : "☆ Add Favorite"}
-            </button>
-          )}
         </div>
 
       </div>
@@ -1699,20 +1482,7 @@ export default function Home() {
 
             {selectedMarket && analysisMode === "live" && (
               <>
-              {!isLoggedIn && authChecked && (
-            <div className="mt-5 rounded-2xl border border-yellow-400/20 bg-yellow-400/5 p-4 text-center text-sm text-yellow-300">
-              🔐 Please sign in or create an account before using AI Chart Analysis.
-              <button
-                type="button"
-                onClick={() => window.location.assign("/login")}
-                className="ml-2 font-bold underline"
-              >
-                Sign In
-              </button>
-            </div>
-          )}
-
-          <div className="mt-5 rounded-2xl border border-cyan-400/20 bg-cyan-400/5 p-4 text-center text-sm text-cyan-300">
+              <div className="mt-5 rounded-2xl border border-cyan-400/20 bg-cyan-400/5 p-4 text-center text-sm text-cyan-300">
                 Selected for Live Data: <strong>{selectedMarket}</strong>
                 <span className="mx-2 text-slate-500">•</span>
                 Timeframe: <strong>{timeframe}</strong>
