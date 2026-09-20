@@ -589,6 +589,7 @@ export default function Home() {
   "Scalping" | "Day Trading" | "Swing" | "Long Term"
 >("Scalping");
   const [analysisMode, setAnalysisMode] = useState<"live" | "chart">("chart");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedMarket, setSelectedMarket] = useState("");
   const [cryptoSymbol, setCryptoSymbol] = useState("");
   const [showCryptoSelector, setShowCryptoSelector] = useState(false);
@@ -603,6 +604,25 @@ export default function Home() {
   const [timeframe, setTimeframe] = useState("15m");
   const marketSectionRef = useRef<HTMLDivElement | null>(null);
   const uploadSectionRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    const checkAuth = async () => {
+      try {
+        const { data } = await createClient().auth.getUser();
+        if (active) setIsLoggedIn(Boolean(data.user));
+      } catch {
+        if (active) setIsLoggedIn(false);
+      }
+    };
+
+    void checkAuth();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!file) {
@@ -849,10 +869,10 @@ export default function Home() {
 
             <button
               type="button"
-              onClick={() => window.location.assign("/login?redirect=/")}
+              onClick={() => window.location.assign(isLoggedIn ? "/dashboard" : "/login?redirect=/")}
               className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium hover:bg-white/10"
             >
-              Sign In
+              {isLoggedIn ? "Dashboard" : "Sign In"}
             </button>
           </div>
         </div>

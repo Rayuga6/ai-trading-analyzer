@@ -109,6 +109,7 @@ import {
 import { getMarketNews } from "@/lib/news-data";
 import { getCurrentUser } from "@/lib/auth";
 import { saveAnalysis } from "@/lib/database";
+import { createClient } from "@/lib/supabase/server";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -226,6 +227,28 @@ export async function POST(request: Request) {
 
     if (!user) {
       return errorResponse(401);
+    }
+
+    // Enforce the Free plan lifetime limit from the database before any AI call.
+    const supabase = await createClient();
+    const { data: subscription } = await supabase
+      .from("subscriptions")
+      .select("plan")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const plan = String(subscription?.plan ?? "free").toLowerCase();
+    if (plan === "free") {
+      const { count, error: countError } = await supabase
+        .from("analysis_history")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id);
+      if (countError) throw countError;
+      if ((count ?? 0) >= 1) {
+        return NextResponse.json(
+          { error: "Free plan limit reached. Please upgrade to analyze again." },
+          { status: 403 }
+        );
+      }
     }
 
     const rateLimit = checkRateLimit(user.id);

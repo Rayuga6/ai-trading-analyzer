@@ -139,12 +139,20 @@ export default function DashboardPage() {
 
       if (historyResponse.ok) {
         const historyData = await historyResponse.json();
-        setHistory(
-          extractList<HistoryItem>(historyData, [
-            "history",
-            "items",
-            "analyses",
-          ]).slice(0, 50)
+        const historyItems = extractList<HistoryItem>(historyData, [
+          "history",
+          "items",
+          "analyses",
+        ]).slice(0, 50);
+        setHistory(historyItems);
+        setSubscription((current) =>
+          current
+            ? {
+                ...current,
+                used: historyItems.length,
+                remaining: Math.max(0, current.limit - historyItems.length),
+              }
+            : current
         );
       }
     } catch (loadError) {
