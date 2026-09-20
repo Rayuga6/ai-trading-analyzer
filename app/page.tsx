@@ -631,13 +631,13 @@ export default function Home() {
 
     checkAuth();
 
-   const {
-  data: { subscription },
-} = supabase.auth.onAuthStateChange(
-  (_event: AuthChangeEvent, session: Session | null) => {
+    const {
+      data: { subscription },
+  } = supabase.auth.onAuthStateChange(
+  (event: AuthChangeEvent, session: Session | null) => {
     setIsLoggedIn(Boolean(session?.user));
     setAuthChecked(true);
-  },
+  }
 );
 
     return () => {
@@ -779,7 +779,7 @@ export default function Home() {
 
   function requireLogin() {
     if (!isLoggedIn) {
-      router.push("/login");
+      window.location.assign("/login");
       return false;
     }
 
@@ -1016,7 +1016,7 @@ export default function Home() {
             {!isLoggedIn ? (
               <button
                 type="button"
-                onClick={() => router.push("/login")}
+                onClick={() => window.location.assign("/login")}
                 className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium hover:bg-white/10"
               >
                 Sign In
@@ -1121,6 +1121,18 @@ export default function Home() {
 
           <label
             htmlFor="chart-upload"
+            onClick={(event) => {
+              if (!authChecked || !isLoggedIn) {
+                event.preventDefault();
+                window.location.assign("/login");
+                return;
+              }
+
+              if (analysisMode === "live" && !selectedMarket) {
+                event.preventDefault();
+                alert("Please select a market first for Live Data Analysis.");
+              }
+            }}
             className={`mt-5 block rounded-3xl border border-dashed p-5 md:p-8 ${
               analysisMode === "live" && !selectedMarket
                 ? "cursor-not-allowed border-white/10 bg-[#0d1422]/60 opacity-60"
@@ -1132,11 +1144,7 @@ export default function Home() {
               type="file"
               accept="image/png,image/jpeg,image/webp"
               className="hidden"
-              disabled={
-                !authChecked ||
-                !isLoggedIn ||
-                (analysisMode === "live" && !selectedMarket)
-              }
+              disabled={analysisMode === "live" && !selectedMarket}
               onChange={(e) => handleFile(e.target.files?.[0])}
             />
 
@@ -1696,7 +1704,7 @@ export default function Home() {
               🔐 Please sign in or create an account before using AI Chart Analysis.
               <button
                 type="button"
-                onClick={() => router.push("/login")}
+                onClick={() => window.location.assign("/login")}
                 className="ml-2 font-bold underline"
               >
                 Sign In
