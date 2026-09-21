@@ -259,6 +259,22 @@ export async function getCurrentUser() {
   } = await supabase.auth.getUser();
 
   if (error) {
+    // An unauthenticated request is an expected state for protected APIs.
+    // Return null so the API route can respond with 401 instead of 500.
+    const errorCode = (error as { code?: string }).code;
+    const errorName = (error as { name?: string }).name;
+    const errorMessage = error.message?.toLowerCase() ?? "";
+
+    const isMissingSession =
+      errorCode === "session_not_found" ||
+      errorName === "AuthSessionMissingError" ||
+      errorMessage.includes("auth session missing") ||
+      errorMessage.includes("session missing");
+
+    if (isMissingSession) {
+      return null;
+    }
+
     throw error;
   }
 
@@ -1104,106 +1120,5 @@ export async function getUserAnalyticsEvents(
   }
 
   return data ?? [];
-}
-/* =========================================================
-   ALERTS
-   Step: 2.5.1
-========================================================= */
-
-export type AlertDatabaseRecord = {
-  id: string;
-  user_id: string;
-  type: "price" | "ai_analysis" | "risk" | "system";
-  severity: "info" | "success" | "warning" | "critical";
-  title: string;
-  message: string;
-  symbol?: string | null;
-  market?: string | null;
-  timeframe?: string | null;
-  trigger_price?: number | null;
-  current_price?: number | null;
-  signal?: string | null;
-  confidence?: number | null;
-  channels?: string[] | null;
-  read: boolean;
-  created_at?: string;
-  expires_at?: string | null;
-  metadata?: unknown;
-};
-
-export type CreateAlertDatabaseInput = Omit<
-  AlertDatabaseRecord,
-  "id" | "user_id" | "created_at"
->;
-
-export async function createAlert(
-  alert: CreateAlertDatabaseInput
-): Promise<AlertDatabaseRecord> {
-  const supabase = await createClient();
-  const user = await getCurrentUser();
-
-  if (!user) {
-    throw new Error("User not authenticated");
-  }
-
-  const { data, error } = await supabase
-    .from("alerts")
-    .insert({
-      user_id: user.id,
-      ...alert,
-    })
-    .select("*")
-    .single();
-
-  if (error) {
-    throw error;
-  }
-
-  return data as AlertDatabaseRecord;
-}
-
-export async function getUserAlerts(
-  limit = 100
-): Promise<AlertDatabaseRecord[]> {
-  const supabase = await createClient();
-  const user = await getCurrentUser();
-
-  if (!user) {
-    return [];
-  }
-
-  const { data, error } = await supabase
-    .from("alerts")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(limit);
-
-  if (error) {
-    throw error;
-  }
-
-  return (data ?? []) as AlertDatabaseRecord[];
-}
-
-export async function markAlertsRead(ids: string[]): Promise<number> {
-  const supabase = await createClient();
-  const user = await getCurrentUser();
-
-  if (!user || ids.length === 0) {
-    return 0;
-  }
-
-  const { data, error } = await supabase
-    .from("alerts")
-    .update({ read: true })
-    .eq("user_id", user.id)
-    .in("id", ids)
-    .select("id");
-
-  if (error) {
-    throw error;
-  }
-
-  return data?.length ?? 0;
+  
 }
