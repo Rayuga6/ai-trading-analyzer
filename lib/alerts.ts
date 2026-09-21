@@ -109,7 +109,7 @@ function normalizeChannels(
     ? channels.filter((channel) =>
         allowed.includes(channel)
       )
-    : ["in_app"] as AlertChannel[];screenLeft
+    : ["in_app"] as AlertChannel[];
 
   return [...new Set(selected)].slice(0, 3);
 }
