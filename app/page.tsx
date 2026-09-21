@@ -819,6 +819,11 @@ export default function Home() {
 
     const data = await response.json();
 
+    if (response.status === 403) {
+      window.location.assign("/pricing");
+      return;
+    }
+
     if (!response.ok) {
       throw new Error(
         data?.error || "AI analysis failed. Please try again."
@@ -1753,11 +1758,37 @@ export default function Home() {
           </div>
         </div>
 
-        <p className="mx-auto mt-10 max-w-3xl text-center text-xs leading-6 text-slate-500">
-          AITrade Analyzer provides technical analysis for informational and
-          educational purposes only. It does not guarantee profits or future
-          market performance.
-        </p>
+        <div className="mx-auto mt-10 max-w-3xl text-center">
+          <p className="text-xs leading-6 text-slate-500">
+            AITrade Analyzer provides technical analysis for informational and
+            educational purposes only. It does not guarantee profits or future
+            market performance.
+          </p>
+
+          <nav
+            aria-label="Legal links"
+            className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-slate-400"
+          >
+            <a
+              href="/privacy-policy"
+              className="transition hover:text-cyan-300 hover:underline"
+            >
+              Privacy Policy
+            </a>
+            <a
+              href="/terms"
+              className="transition hover:text-cyan-300 hover:underline"
+            >
+              Terms & Conditions
+            </a>
+            <a
+              href="/disclaimer"
+              className="transition hover:text-cyan-300 hover:underline"
+            >
+              Disclaimer
+            </a>
+          </nav>
+        </div>
       </section>
     </main>
   );
@@ -1934,3 +1965,4 @@ function Market({
     </button>
   );
 }
+

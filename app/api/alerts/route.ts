@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { requireCurrentUser } from "@/lib/auth";
+
 import {
   createAlert as createInMemoryAlert,
   validateAlertBatch,
@@ -7,6 +9,7 @@ import {
   type AlertSeverity,
   type AlertType,
 } from "@/lib/alerts";
+
 import {
   createAlert as createDatabaseAlert,
   getUserAlerts,
@@ -186,7 +189,6 @@ export async function POST(request: NextRequest) {
         ? body.metadata
         : undefined;
 
-      // Keep the existing in-memory validation/normalization logic.
       const validatedAlert = createInMemoryAlert({
         userId: user.id,
         type: body.type,
@@ -205,7 +207,6 @@ export async function POST(request: NextRequest) {
         metadata,
       });
 
-      // Persist the validated alert in Supabase.
       const persistedAlert = await createDatabaseAlert({
         type: validatedAlert.type,
         severity: validatedAlert.severity,
