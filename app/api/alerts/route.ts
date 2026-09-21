@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireCurrentUser } from "@/lib/auth";
 import {
-  createAlert,
-  markAlertsRead,
+  createAlert as createInMemoryAlert,
   validateAlertBatch,
   type AlertChannel,
   type AlertSeverity,
   type AlertType,
 } from "@/lib/alerts";
+import {
+  createAlert as createDatabaseAlert,
+  getUserAlerts,
+  markAlertsRead as markDatabaseAlertsRead,
+} from "@/lib/database";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -50,18 +54,12 @@ function isSeverity(value: unknown): value is AlertSeverity {
   );
 }
 
-function normalizeChannels(
-  value: unknown
-): AlertChannel[] | undefined {
+function normalizeChannels(value: unknown): AlertChannel[] | undefined {
   if (!Array.isArray(value)) {
     return undefined;
   }
 
-  const allowed: AlertChannel[] = [
-    "in_app",
-    "email",
-    "push",
-  ];
+  const allowed: AlertChannel[] = ["in_app", "email", "push"];
 
   return [
     ...new Set(
@@ -76,39 +74,31 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
 export async function GET() {
   try {
     const user = await requireCurrentUser();
+    const alerts = await getUserAlerts();
 
-    /*
-     * This route deliberately does not read another user's alerts.
-     * Persistence/delivery can be connected to the database/notification
-     * layer without exposing user-controlled ownership.
-     */
     return json({
       success: true,
       userId: user.id,
-      alerts: [],
-      message:
-        "Alert API is ready. Connect the alert persistence table to return saved alerts.",
+      alerts,
+      persisted: true,
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "";
+    const message = error instanceof Error ? error.message : "";
 
     if (message === "Authentication required.") {
-      return json(
-        { error: "Authentication required." },
-        401
-      );
+      return json({ error: "Authentication required." }, 401);
     }
 
     console.error("Alerts GET error:", error);
 
-    return json(
-      { error: "Unable to load alerts." },
-      500
-    );
+    return json({ error: "Unable to load alerts." }, 500);
   }
 }
 
@@ -124,10 +114,7 @@ export async function POST(request: NextRequest) {
       Number.isFinite(contentLength) &&
       contentLength > MAX_BODY_BYTES
     ) {
-      return json(
-        { error: "Alert request is too large." },
-        413
-      );
+      return json({ error: "Alert request is too large." }, 413);
     }
 
     let body: unknown;
@@ -135,30 +122,19 @@ export async function POST(request: NextRequest) {
     try {
       body = await request.json();
     } catch {
-      return json(
-        { error: "Invalid JSON request body." },
-        400
-      );
+      return json({ error: "Invalid JSON request body." }, 400);
     }
 
     if (!isRecord(body)) {
-      return json(
-        { error: "Invalid alert request." },
-        400
-      );
+      return json({ error: "Invalid alert request." }, 400);
     }
 
     const action =
-      typeof body.action === "string"
-        ? body.action.trim()
-        : "create";
+      typeof body.action === "string" ? body.action.trim() : "create";
 
     if (action === "create") {
       if (!isAlertType(body.type)) {
-        return json(
-          { error: "Invalid alert type." },
-          400
-        );
+        return json({ error: "Invalid alert type." }, 400);
       }
 
       const title = cleanText(body.title, 120);
@@ -171,10 +147,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const severity = isSeverity(body.severity)
-        ? body.severity
-        : "info";
-
+      const severity = isSeverity(body.severity) ? body.severity : "info";
       const channels = normalizeChannels(body.channels);
 
       const symbol = cleanText(body.symbol, 40);
@@ -182,22 +155,39 @@ export async function POST(request: NextRequest) {
       const timeframe = cleanText(body.timeframe, 20);
       const signal = cleanText(body.signal, 40);
 
-      const confidence =
-        typeof body.confidence === "number"
-          ? body.confidence
+      const confidence = isFiniteNumber(body.confidence)
+        ? body.confidence
+        : undefined;
+
+      const triggerPrice = isFiniteNumber(body.triggerPrice)
+        ? body.triggerPrice
+        : undefined;
+
+      const currentPrice = isFiniteNumber(body.currentPrice)
+        ? body.currentPrice
+        : undefined;
+
+      if (
+        confidence !== undefined &&
+        (confidence < 0 || confidence > 100)
+      ) {
+        return json(
+          { error: "Confidence must be between 0 and 100." },
+          400
+        );
+      }
+
+      const expiresAt =
+        typeof body.expiresAt === "string"
+          ? body.expiresAt
           : undefined;
 
-      const triggerPrice =
-        typeof body.triggerPrice === "number"
-          ? body.triggerPrice
-          : undefined;
+      const metadata = isRecord(body.metadata)
+        ? body.metadata
+        : undefined;
 
-      const currentPrice =
-        typeof body.currentPrice === "number"
-          ? body.currentPrice
-          : undefined;
-
-      const alert = createAlert({
+      // Keep the existing in-memory validation/normalization logic.
+      const validatedAlert = createInMemoryAlert({
         userId: user.id,
         type: body.type,
         severity,
@@ -211,26 +201,34 @@ export async function POST(request: NextRequest) {
         triggerPrice,
         currentPrice,
         channels,
-        expiresAt:
-          typeof body.expiresAt === "string"
-            ? body.expiresAt
-            : undefined,
-        metadata: isRecord(body.metadata)
-          ? body.metadata
-          : undefined,
+        expiresAt,
+        metadata,
       });
 
-      /*
-       * Persistence is intentionally not faked here. Once the alerts table
-       * exists, save the server-created alert using user.id as ownership.
-       */
+      // Persist the validated alert in Supabase.
+      const persistedAlert = await createDatabaseAlert({
+        type: validatedAlert.type,
+        severity: validatedAlert.severity,
+        title: validatedAlert.title,
+        message: validatedAlert.message,
+        symbol: validatedAlert.symbol ?? null,
+        market: validatedAlert.market ?? null,
+        timeframe: validatedAlert.timeframe ?? null,
+        trigger_price: validatedAlert.triggerPrice ?? null,
+        current_price: validatedAlert.currentPrice ?? null,
+        signal: validatedAlert.signal ?? null,
+        confidence: validatedAlert.confidence ?? null,
+        channels: validatedAlert.channels ?? ["in_app"],
+        expires_at: validatedAlert.expiresAt ?? null,
+        metadata: validatedAlert.metadata ?? {},
+        read: false,
+      });
+
       return json(
         {
           success: true,
-          alert,
-          persisted: false,
-          message:
-            "Alert validated and created in memory. Persistence will be enabled with the alerts database integration.",
+          alert: persistedAlert,
+          persisted: true,
         },
         201
       );
@@ -239,35 +237,30 @@ export async function POST(request: NextRequest) {
     if (action === "mark-read") {
       const ids = Array.isArray(body.ids)
         ? body.ids
-            .filter(
-              (id): id is string =>
-                typeof id === "string"
-            )
+            .filter((id): id is string => typeof id === "string")
             .map((id) => cleanText(id, 100))
             .filter(Boolean)
             .slice(0, 50)
         : [];
 
-      /*
-       * Do not accept arbitrary alert objects from the client and mark them
-       * as belonging to this user. IDs must be resolved against the user's
-       * own stored alerts when persistence is connected.
-       */
-      const safeResult = markAlertsRead([], ids);
+      if (ids.length === 0) {
+        return json(
+          { error: "At least one alert ID is required." },
+          400
+        );
+      }
+
+      const updated = await markDatabaseAlertsRead(ids);
 
       return json({
         success: true,
-        updated: safeResult.length,
-        persisted: false,
-        message:
-          "Read-state request validated. Persistence will be enabled with the alerts database integration.",
+        updated,
+        persisted: true,
       });
     }
 
     if (action === "validate-batch") {
-      const alerts = Array.isArray(body.alerts)
-        ? body.alerts
-        : [];
+      const alerts = Array.isArray(body.alerts) ? body.alerts : [];
 
       try {
         validateAlertBatch(alerts as never[]);
@@ -290,19 +283,12 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    return json(
-      { error: "Invalid alert action." },
-      400
-    );
+    return json({ error: "Invalid alert action." }, 400);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "";
+    const message = error instanceof Error ? error.message : "";
 
     if (message === "Authentication required.") {
-      return json(
-        { error: "Authentication required." },
-        401
-      );
+      return json({ error: "Authentication required." }, 401);
     }
 
     console.error("Alerts POST error:", error);
