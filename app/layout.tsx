@@ -21,6 +21,9 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  verification: {
+    google: "59M4OduZ1zZ5iwi7tfjlh-KHYk7IXEjmi4EVeYDdbi0",
+  },
 };
 
 export const viewport: Viewport = {
@@ -45,3 +48,4 @@ export default function RootLayout({
     </html>
   );
 }
+
