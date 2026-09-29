@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 const baseUrl =
   process.env.NEXT_PUBLIC_SITE_URL ||
-  "https://ai-trading-analyzer-gamma.vercel.app";
+  "https://www.aitradinganalyzers.com";
 
 export default function robots(): MetadataRoute.Robots {
   return {
